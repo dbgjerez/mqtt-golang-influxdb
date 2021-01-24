@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/gorilla/mux"
 
@@ -25,7 +24,7 @@ var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err
 
 func main() {
 	router := mux.NewRouter()
-	var broker = "192.168.1.10"
+	var broker = "192.168.1.12"
 	var port = 1883
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(fmt.Sprintf("tcp://%s:%d", broker, port))
@@ -41,22 +40,11 @@ func main() {
 	}
 
 	sub(client)
-	//publish(client)
 
 	//time.Sleep(time.Minute)
 	log.Fatal(http.ListenAndServe(":8000", router))
 
 	client.Disconnect(250)
-}
-
-func publish(client mqtt.Client) {
-	num := 10
-	for i := 0; i < num; i++ {
-		text := fmt.Sprintf("Message %d", i)
-		token := client.Publish("topic/test", 0, false, text)
-		token.Wait()
-		time.Sleep(time.Minute)
-	}
 }
 
 func sub(client mqtt.Client) {
