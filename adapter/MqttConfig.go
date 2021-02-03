@@ -10,11 +10,15 @@ import (
 
 // mqtt constants
 const (
-	BrokerHost = "tcp://%s:%s" // host yo mqtt
+	BrokerHostFormat = "tcp://%s:%s" // host yo mqtt
+	MqttHost         = "MQTT_HOST"   // host env variable
+	MqttPort         = "MQTT_PORT"
+	MqttClientName   = "MQTT_CLIENT_NAME"
+	MqttTopicName    = "MQTT_TOPIC_NAME"
 )
 
-var host = os.Getenv("MQTT_HOST")
-var port = os.Getenv("MQTT_PORT")
+var host = os.Getenv(MqttHost)
+var port = os.Getenv(MqttPort)
 
 type MqttConnection struct {
 	mqttClient mqtt.Client
@@ -22,7 +26,7 @@ type MqttConnection struct {
 
 func NewConnection(clientId string) (conn *MqttConnection) {
 	opts := mqtt.NewClientOptions()
-	opts.AddBroker(fmt.Sprintf(host, host, port))
+	opts.AddBroker(fmt.Sprintf(BrokerHostFormat, host, port))
 	opts.SetClientID(clientId)
 	opts.AutoReconnect = true
 	opts.OnConnectionLost = connectLostHandler
