@@ -40,8 +40,8 @@ func NewConnection(clientId string) (conn *MqttConnection) {
 	return conn
 }
 
-func (con *MqttConnection) Subscribe(topic string) {
-	token := con.mqttClient.Subscribe(topic, 1, nil)
+func (conn *MqttConnection) Subscribe(topic string) {
+	token := conn.mqttClient.Subscribe(topic, 1, nil)
 	token.Wait()
 	log.Println("Subscribed to topic: ", topic)
 }
