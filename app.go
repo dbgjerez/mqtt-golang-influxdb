@@ -3,6 +3,7 @@ package main
 import (
 	"mqtt-golang-subscriber/adapter"
 	"mqtt-golang-subscriber/controllers"
+	"mqtt-golang-subscriber/db"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -17,8 +18,11 @@ func main() {
 		v1.GET("/health", health.Default)
 	}
 
-	conn := adapter.NewConnection(os.Getenv(adapter.MqttClientName))
-	conn.Subscribe(os.Getenv(adapter.MqttTopicName))
+	mqttConnection := adapter.NewConnection(os.Getenv(adapter.MqttClientName))
+	mqttConnection.Subscribe(os.Getenv(adapter.MqttTopicName))
+
+	influxDBConnection := db.NewConnection()
+	influxDBConnection.Insert()
 
 	router.NoRoute(func(c *gin.Context) {
 		c.JSON(404, gin.H{"msg": "Not found"})
