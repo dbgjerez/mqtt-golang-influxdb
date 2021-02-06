@@ -1,8 +1,10 @@
 package adapter
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
+	"mqtt-golang-subscriber/models"
 	"os"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -47,11 +49,23 @@ func (conn *MqttConnection) Subscribe(topic string) {
 }
 
 func (con *MqttConnection) IsConnected() bool {
-	return con.mqttClient.IsConnected()
+	connected := con.mqttClient.IsConnected()
+	if !connected {
+		log.Println("Healthcheck MQTT fails")
+	}
+	return connected
 }
 
 var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
 	log.Printf("Received message: %s from topic: %s", msg.Payload(), msg.Topic())
+
+	event := models.ChipEvent{}
+
+	err := json.Unmarshal([]byte(msg.Payload()), &event)
+	if err != nil {
+		log.Println("Unmarshal message fails: ", err)
+	}
+	// TODO send to influxdb the message
 }
 
 var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err error) {
