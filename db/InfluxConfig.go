@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"log"
 	"os"
 	"time"
 
@@ -22,9 +23,17 @@ type InfluxDBConnection struct {
 func NewConnection() (conn *InfluxDBConnection) {
 	influxdb2.DefaultOptions().HTTPClient()
 	client := influxdb2.NewClient(os.Getenv(InfluxDBHost), "")
-	//influxdb2.NewPointWithMeasurement()
 	conn = &InfluxDBConnection{client}
 	return conn
+}
+
+func (conn *InfluxDBConnection) IsConnected() bool {
+	_, err := conn.influxdbClient.Health(context.Background())
+	if err != nil {
+		log.Println("Healthcheck InfluxDB fails: ", err)
+		return false
+	}
+	return true
 }
 
 func (conn *InfluxDBConnection) Insert() {
