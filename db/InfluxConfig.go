@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"log"
+	"mqtt-golang-subscriber/models"
 	"os"
 	"time"
 
@@ -36,13 +37,15 @@ func (conn *InfluxDBConnection) IsConnected() bool {
 	return true
 }
 
-func (conn *InfluxDBConnection) Insert() {
-	p := influxdb2.NewPointWithMeasurement(InfluxDBMeasurement).
-		AddTag("chip", "asdasd").
-		AddTag("sensor", "fc28").
-		AddField("humidity", 1023).
-		SetTime(time.Now())
+func (conn *InfluxDBConnection) Insert(event *models.ChipEvent) {
+	for _, elem := range event.Sensors {
+		p := influxdb2.NewPointWithMeasurement(os.Getenv(InfluxDBMeasurement)).
+			AddTag("chip", event.Chip).
+			AddTag("sensor", elem.Sensor).
+			AddField("humidity", elem.Humidity).
+			SetTime(time.Unix(elem.Time, 0))
 
-	writeAPI := conn.influxdbClient.WriteAPIBlocking("", os.Getenv(InfluxDBDatabaseName))
-	writeAPI.WritePoint(context.Background(), p)
+		writeAPI := conn.influxdbClient.WriteAPIBlocking("", os.Getenv(InfluxDBDatabaseName))
+		writeAPI.WritePoint(context.Background(), p)
+	}
 }
