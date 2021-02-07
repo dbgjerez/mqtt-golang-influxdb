@@ -15,7 +15,7 @@ func main() {
 	influxDBConnection := db.NewConnection()
 
 	mqttConnection := adapter.NewConnection(os.Getenv(adapter.MqttClientName))
-	mqttConnection.Subscribe(os.Getenv(adapter.MqttTopicName))
+	mqttConnection.Subscribe(influxDBConnection, os.Getenv(adapter.MqttTopicName))
 
 	v1 := router.Group("/api/v1")
 	{
