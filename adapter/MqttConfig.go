@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"mqtt-golang-subscriber/db"
 	"mqtt-golang-subscriber/models"
 	"os"
 
@@ -33,7 +34,6 @@ func NewConnection(clientId string) (conn *MqttConnection) {
 	opts.AutoReconnect = true
 	opts.OnConnectionLost = connectLostHandler
 	opts.OnConnect = connectHandler
-	opts.SetDefaultPublishHandler(messagePubHandler)
 	client := mqtt.NewClient(opts)
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
 		log.Fatalln("Connect problem: ", token.Error())
@@ -42,8 +42,8 @@ func NewConnection(clientId string) (conn *MqttConnection) {
 	return conn
 }
 
-func (conn *MqttConnection) Subscribe(topic string) {
-	token := conn.mqttClient.Subscribe(topic, 1, nil)
+func (conn *MqttConnection) Subscribe(influxConn *db.InfluxDBConnection, topic string) {
+	token := conn.mqttClient.Subscribe(topic, 1, onMessageReceived(influxConn))
 	token.Wait()
 	log.Println("Subscribed to topic: ", topic)
 }
@@ -56,16 +56,19 @@ func (con *MqttConnection) IsConnected() bool {
 	return connected
 }
 
-var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
-	log.Printf("Received message: %s from topic: %s", msg.Payload(), msg.Topic())
+func onMessageReceived(influxConn *db.InfluxDBConnection) func(client mqtt.Client, msg mqtt.Message) {
+	return func(client mqtt.Client, msg mqtt.Message) {
+		log.Printf("Received message: %s from topic: %s", msg.Payload(), msg.Topic())
 
-	event := models.ChipEvent{}
+		event := models.ChipEvent{}
 
-	err := json.Unmarshal([]byte(msg.Payload()), &event)
-	if err != nil {
-		log.Println("Unmarshal message fails: ", err)
+		err := json.Unmarshal([]byte(msg.Payload()), &event)
+		if err != nil {
+			log.Println("Unmarshal message fails: ", err)
+		}
+
+		influxConn.Insert(&event)
 	}
-	// TODO send to influxdb the message
 }
 
 var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err error) {
