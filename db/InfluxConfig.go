@@ -46,6 +46,9 @@ func (conn *InfluxDBConnection) Insert(event *models.ChipEvent) {
 			SetTime(time.Unix(elem.Time, 0))
 
 		writeAPI := conn.influxdbClient.WriteAPIBlocking("", os.Getenv(InfluxDBDatabaseName))
-		writeAPI.WritePoint(context.Background(), p)
+		err := writeAPI.WritePoint(context.Background(), p)
+		if err != nil {
+			log.Println("Influxdb fails insert: ", err)
+		}
 	}
 }
