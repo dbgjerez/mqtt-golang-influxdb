@@ -14,4 +14,7 @@
 | INFLUXDB_MEASUREMENT | "" | Influxdb measurement name for this nanoservice |
 
 # Libraries
-
+* Gin Gonic: Golang Framework
+* InfluxDB client: Connection with InfluxDB https://github.com/influxdata/influxdb-client-go
+* Mqtt client: Mqtt connection and listener https://github.com/eclipse/paho.mqtt.golang
+* GoDotEnv: Library for env variables
