@@ -1,4 +1,5 @@
 # MQTT client for iot
+Nanoservice that suscribes just a Mqtt topic and save the data to InfluxDB. 
 
 # Configuration
 | Variable | Default value | Description |
