@@ -5,6 +5,15 @@ Nanoservice that suscribes just a Mqtt topic and save the data to InfluxDB.
 ## Docker
 ```bash
 ```
+## Kubernetes
+This microservice could be deployed using Helm. I recommend the following Helm Chart: [https://github.com/dbgjerez/ms-helm-chart](https://github.com/dbgjerez/ms-helm-chart).
+
+The configuration values.yaml that I have used: [values.yaml](https://github.com/dbgjerez/iot-k8s-stack/blob/master/mqtt-plants-suscriber/values.yaml)
+
+The healthcheck endpoint check MongoDB and Mqtt server connection. If anyone of both fails, it returns 500 http code.
+```bash
+[GIN] 2021/02/13 - 20:59:51 | 200 |     594.029µs |       10.42.0.1 | GET      "/api/v1/health"
+```
 
 # Configuration
 | Variable | Default value | Description |
