@@ -4,7 +4,25 @@ Nanoservice that suscribes just a Mqtt topic and save the data to InfluxDB.
 # Run
 ## Docker
 ```bash
-
+# create dedicated network
+$ docker network create --driver bridge iot
+# run MongoDB container
+$ docker run -itd -p 1883:1883 -p 9001:9001 --name mosquitto --network iot eclipse-mosquitto:1.6 
+# run InfluxDB container
+$ docker run -p 8086:8086 --name influx --network iot influxdb:1.8.4
+# create a database into Influx 
+$ docker exec -it influx influx 
+$ create database iot
+$ exit
+# run microservice container
+$ docker run -dit \
+    --env MQTT_HOST=mosquitto  \
+    --env MQTT_PORT=1883  \
+    --env MQTT_TOPIC_NAME=/test/one  \
+    --env INFLUXDB_HOST=http://influx:8086  \
+    --env INFLUXDB_DATABASE_NAME=iot  \
+    --env INFLUXDB_MEASUREMENT=test  \
+    --name ns-mqtt-suscriber -p 8080:8080 --network iot b0rr3g0/mqtt-golang-influxdb:latest
 ```
 ## Kubernetes
 This microservice could be deployed using Helm. I recommend the following Helm Chart: [https://github.com/dbgjerez/ms-helm-chart](https://github.com/dbgjerez/ms-helm-chart).
