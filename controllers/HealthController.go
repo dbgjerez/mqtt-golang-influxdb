@@ -17,9 +17,10 @@ func HealthControllerHandler(mqttConn *adapter.MqttConnection, influxConn *db.In
 		h := models.Health{}
 		if mqttConn.IsConnected() && influxConn.IsConnected() {
 			h.Status = models.HealhStatusUp
+			c.JSON(http.StatusOK, h)
 		} else {
-			h.Status = models.HealhStatusUp
+			h.Status = models.HealhStatusDown
+			c.JSON(http.StatusInternalServerError, h)
 		}
-		c.JSON(http.StatusOK, h)
 	}
 }
