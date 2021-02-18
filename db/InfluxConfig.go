@@ -42,6 +42,7 @@ func (conn *InfluxDBConnection) Insert(event *models.ChipEvent) {
 		p := influxdb2.NewPointWithMeasurement(os.Getenv(InfluxDBMeasurement)).
 			AddTag("chip", event.Chip).
 			AddTag("sensor", elem.Sensor).
+			AddField("battery", event.Battery).
 			AddField("humidity", elem.Humidity).
 			SetTime(time.Unix(elem.Time, 0))
 
