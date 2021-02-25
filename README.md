@@ -1,6 +1,9 @@
 # MQTT client for iot
 Nanoservice that suscribes just a Mqtt topic and save the data to InfluxDB. 
 
+# Architecture
+![Architecture schema](doc/images/architecture.png)
+
 # Run
 ## Docker
 ```bash
